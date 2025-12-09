@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Snappify",
+  "version": "1.0",
+  "description": "Scribe-style workflow recorder",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "action": {
+    "default_title": "Snappify",
+    "default_icon": {
+      "16": "icons/icon-48.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-48.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

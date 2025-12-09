@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Snappify Guide</title>
+  <link rel="stylesheet" href="preview.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+</head>
+
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="doc-header">
+      <input type="text" class="doc-title" value="How to use this workflow" placeholder="Enter guide title...">
+      <div class="doc-meta">
+        <span id="step-count">0 steps</span>
+        <span>•</span>
+        <span id="created-date">Created today</span>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div id="steps-container">
+      <!-- Steps injected here -->
+    </div>
+  </div>
+
+  <!-- Floating Toolbar -->
+  <div class="toolbar">
+    <button class="primary-btn" id="downloadPdf">Export to PDF</button>
+  </div>
+
+  <script src="libs/jspdf.umd.min.js"></script>
+  <script src="preview.js"></script>
+</body>
+
+</html>

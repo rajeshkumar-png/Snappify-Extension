@@ -1,0 +1,66 @@
+#myRecorderSidebar {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 260px;
+  height: 100vh;
+  background: #ffffff;
+  border-left: 2px solid #ddd;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+  padding: 15px;
+  font-family: 'Segoe UI', sans-serif;
+  transition: right 0.3s ease;
+  z-index: 999999;
+}
+
+#myRecorderSidebar.open {
+  right: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+#closeSidebar {
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.status {
+  margin-top: 15px;
+}
+
+.status p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.controls button {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #2196f3;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background: #1976d2;
+}
