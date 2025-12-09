@@ -13,8 +13,11 @@ if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  console.log("Background: Received message:", msg.type);
+
   // Start capture from panel
   if (msg.type === "start-capture") {
+    console.log("Background: Processing start-capture request");
     isRecording = true;
 
     // Clear previous steps to start fresh
@@ -23,7 +26,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     // Find the FIRST non-extension tab
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      console.log("Background: Found tabs:", tabs.length);
+
+      if (!tabs || tabs.length === 0) {
+        console.error("Background: No active tab found");
+        return;
+      }
+
       const tab = tabs[0];
+      console.log("Background: Active tab:", tab.id, tab.url);
 
       // If user is inside the panel, reject
       if (!tab.url || tab.url.startsWith("chrome://") || tab.url.startsWith("edge://") || tab.url.startsWith("chrome-extension://")) {
@@ -32,13 +43,43 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         return;
       }
 
-      try {
-        chrome.tabs.sendMessage(tab.id, { type: "enable-recording" }).catch(err => {
-          console.log("Could not send enable-recording (content script may not be ready):", err);
+      console.log("Background: Attempting to send message to tab", tab.id);
+
+      // Try to send message to content script
+      chrome.tabs.sendMessage(tab.id, { type: "enable-recording" })
+        .then(() => {
+          console.log("Background: Successfully sent enable-recording message");
+        })
+        .catch(err => {
+          console.error("Background: Failed to send enable-recording:", err);
+
+          // Content script not loaded - try to inject it
+          console.log("Background: Content script not loaded, attempting to inject...");
+
+          chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['content.js']
+          })
+            .then(() => {
+              console.log("Background: Content script injected successfully");
+
+              // Wait a bit for script to initialize, then try again
+              setTimeout(() => {
+                chrome.tabs.sendMessage(tab.id, { type: "enable-recording" })
+                  .then(() => {
+                    console.log("Background: Message sent after injection");
+                  })
+                  .catch(err2 => {
+                    console.error("Background: Still failed after injection:", err2);
+                    alert("Failed to start recording. Please refresh the page and try again.");
+                  });
+              }, 200);
+            })
+            .catch(injectErr => {
+              console.error("Background: Failed to inject content script:", injectErr);
+              alert("Failed to start recording. Please refresh the page and try again.");
+            });
         });
-      } catch (e) {
-        console.error(e);
-      }
     });
 
     return;
@@ -108,6 +149,15 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     chrome.storage.local.set({ steps }, () => {
       console.log("Background: Saved", steps.length, "steps to storage");
     });
+
+    // Notify the panel about the new step for live preview
+    chrome.runtime.sendMessage({
+      type: "new-step-captured",
+      step: msg.step
+    }).catch(() => {
+      // Panel might not be open, silently ignore
+    });
+
     return;
   }
 
