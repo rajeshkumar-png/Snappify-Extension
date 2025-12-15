@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Identification Test - Snappify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #1f2937;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .test-section {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+
+        .test-section h2 {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .test-description {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .expected {
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .expected strong {
+            color: #10b981;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .expected code {
+            background: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #059669;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .info-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+
+        .info-box p {
+            color: #92400e;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .info-box strong {
+            color: #78350f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎯 Field Identification Test</h1>
+        <p class="subtitle">Test the enhanced field detection in Snappify</p>
+
+        <div class="info-box">
+            <p><strong>How to test:</strong> Start recording in Snappify, then click on each field below. The extension
+                should now clearly identify which field you're clicking!</p>
+        </div>
+
+        <!-- Test 1: Standard labeled fields -->
+        <div class="test-section">
+            <h2>✅ Test 1: Standard Labeled Fields</h2>
+            <p class="test-description">These fields have explicit labels. Should work perfectly.</p>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="Enter your email">
+                <div class="expected">
+                    <strong>Expected:</strong>
+                    <code>Click "Email Address" field</code>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country">
+                    <option value="">Select a country</option>
+                    <option value="us">United States</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="ca">Canada</option>
+                </select>
+                <div class="expected">
+                    <strong>Expected:</strong>
+                    <code>Select from "Country"</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Fields with only name/id attributes -->
+        <div class="test-section">
+            <h2>🔧 Test 2: Fields with Name/ID Only</h2>
+            <p class="test-description">No explicit label, but has name or id attributes. Should still work!</p>
+
+            <div class="form-group">
+                <input type="text" name="user_name" placeholder="Your name">
+                <div class="expected">
+                    <strong>Expected:</strong>
+                    <code>Click "User Name" field</code> (from name attribute)
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="searchQuery" placeholder="Search...">
+                <div class="expected">
+                    <strong>Expected:</strong>
+                    <code>Click "Search Query" field</code> (from id attribute)
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Fields with placeholder only -->
+        <div class="test-section">
+            <h2>💡 Test 3: Placeholder-based Fields</h2>
+            <p class="test-description">Only has placeholder text. Should use that!</p>
+
+            <div class="form-group">
+                <input type="text" placeholder="Enter company name">
+                <div class="expected">
+                    <strong>Expected:</strong>
+                    <code>Click "Enter company name" field</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 4: Textarea -->
+        <div class="test-section">
+            <h2>📝 Test 4: Text Areas</h2>
+            <p class="test-description">Multiline text field should be clearly identified.</p>
+
+            <div class="form-group">
+                <label for="comments">Comments</label>
+                <textarea id="comments" placeholder="Enter your comments here"></textarea>
+                <div class="expected">
+                    <strong>Expected:</strong>
+                    <code>Click "Comments" field</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 5: Wrapped label -->
+        <div class="test-section">
+            <h2>🎁 Test 5: Wrapped in Label</h2>
+            <p class="test-description">Input wrapped inside a label tag.</p>
+
+            <div class="form-group">
+                <label>
+                    Phone Number
+                    <input type="tel" placeholder="(555) 555-5555">
+                </label>
+                <div class="expected">
+                    <strong>Expected:</strong>
+                    <code>Click "Phone Number" field</code>
+                </div>
+            </div>
+        </div>
+
+        <button type="button">Submit Test Form</button>
+    </div>
+</body>
+
+</html>

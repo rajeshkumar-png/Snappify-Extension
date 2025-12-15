@@ -51,10 +51,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           console.log("Background: Successfully sent enable-recording message");
         })
         .catch(err => {
-          console.error("Background: Failed to send enable-recording:", err);
+          // Check if it's the expected "no content script" error
+          if (err.message && err.message.includes("Receiving end does not exist")) {
+            console.log("Background: Content script not active. Injecting now...");
+          } else {
+            // Real error
+            console.error("Background: Failed to send enable-recording:", err);
+          }
 
           // Content script not loaded - try to inject it
-          console.log("Background: Content script not loaded, attempting to inject...");
+          console.log("Background: Attempting to inject content script...");
 
           chrome.scripting.executeScript({
             target: { tabId: tab.id },
@@ -89,6 +95,31 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // Stop capture from panel
   if (msg.type === "stop-capture") {
     isRecording = false;
+
+    // Save to history before stopping
+    if (steps.length > 0) {
+      chrome.storage.local.get(["history"], (res) => {
+        const history = res.history || [];
+        const newHistoryItem = {
+          id: Date.now(),
+          date: new Date().toLocaleString(),
+          steps: [...steps], // copy steps
+          stepCount: steps.length,
+          title: `Workflow ${new Date().toLocaleTimeString()}`
+        };
+
+        // Add to beginning
+        history.unshift(newHistoryItem);
+
+        // Keep only last 10 items
+        if (history.length > 10) {
+          history.length = 10;
+        }
+
+        chrome.storage.local.set({ history });
+        console.log("Background: Saved to history", history);
+      });
+    }
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0] && tabs[0].id) {
@@ -166,6 +197,45 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     sendResponse(steps);
     // Do NOT return true; sendResponse is synchronous here.
     return false;
+  }
+
+  // Get history
+  if (msg.type === "get-history") {
+    chrome.storage.local.get(["history"], (res) => {
+      sendResponse(res.history || []);
+    });
+    return true; // async response
+  }
+
+  // Delete history item
+  if (msg.type === "delete-history") {
+    const idToDelete = msg.id;
+    chrome.storage.local.get(["history"], (res) => {
+      let history = res.history || [];
+      history = history.filter(item => item.id !== idToDelete);
+      chrome.storage.local.set({ history }, () => {
+        sendResponse({ success: true, history });
+      });
+    });
+    return true; // async response
+  }
+
+  // Load history item (restore as current steps)
+  if (msg.type === "load-history") {
+    const idToLoad = msg.id;
+    chrome.storage.local.get(["history"], (res) => {
+      const history = res.history || [];
+      const item = history.find(i => i.id === idToLoad);
+      if (item) {
+        steps = [...item.steps];
+        chrome.storage.local.set({ steps }, () => {
+          chrome.tabs.create({
+            url: chrome.runtime.getURL("preview.html")
+          });
+        });
+      }
+    });
+    return;
   }
 
   // Default: close channel

@@ -19,49 +19,65 @@
     <div class="floating-icon">🎯</div>
   </div>
 
-  <!-- Header -->
-  <div class="header">
-    <div class="brand">
-      <img src="icons/icon-48.png" alt="Logo" class="brand-logo-img">
-      <span class="brand-text">Snappify</span>
-    </div>
-    <div class="header-actions">
-      <button class="icon-btn" id="settingsBtn" title="Settings">
-        <span>⚙️</span>
-      </button>
-      <button class="icon-btn" id="closeBtn" title="Close">
-        <span>✕</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <button id="start" class="btn start-btn">
-      <div class="btn-content">
-        <span class="record-icon"></span>
-        <span>Start Capture</span>
+  <!-- Main App Container -->
+  <div id="main-app">
+    <!-- Header -->
+    <div class="header">
+      <div class="brand">
+        <img src="icons/icon-48.png" alt="Logo" class="brand-logo-img">
+        <span class="brand-text">Snappify</span>
       </div>
-    </button>
-
-    <button id="stop" class="btn stop-btn" style="display: none;">
-      <div class="btn-content">
-        <span class="stop-icon">⬛</span>
-        <span>Stop Capture</span>
+      <div class="header-actions">
+        <button class="icon-btn" id="settingsBtn" title="Settings">
+          <span>⚙️</span>
+        </button>
+        <button class="icon-btn" id="closeBtn" title="Close">
+          <span>✕</span>
+        </button>
       </div>
-    </button>
-  </div>
+    </div>
 
-  <!-- Live Screenshots Preview -->
-  <div id="live-preview-section" class="live-preview-section" style="display: none;">
-    <div class="preview-header">
-      <h3>📸 Captured Steps</h3>
-      <span id="step-counter" class="step-counter">0</span>
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <button id="start" class="btn start-btn">
+        <div class="btn-content">
+          <span class="record-icon"></span>
+          <span>Start Capture</span>
+        </div>
+      </button>
+
+      <button id="stop" class="btn stop-btn" style="display: none;">
+        <div class="btn-content">
+          <span class="stop-icon">⬛</span>
+          <span>Stop Capture</span>
+        </div>
+      </button>
     </div>
-    <div id="screenshots-container" class="screenshots-container">
-      <!-- Screenshots will be dynamically added here -->
+
+    <!-- History Section -->
+    <div id="history-section" class="content-section">
+      <div class="header-row" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="section-title">Recent History</div>
+      </div>
+      <div id="history-list" class="resize-list">
+        <!-- History items will be dynamically added here -->
+        <div class="empty-state" style="text-align:center; padding: 20px; color: #6b7280; font-size: 13px;">
+          No recorded history yet.
+        </div>
+      </div>
     </div>
-  </div>
+
+    <!-- Live Screenshots Preview -->
+    <div id="live-preview-section" class="live-preview-section" style="display: none;">
+      <div class="preview-header">
+        <h3>📸 Captured Steps</h3>
+        <span id="step-counter" class="step-counter">0</span>
+      </div>
+      <div id="screenshots-container" class="screenshots-container">
+        <!-- Screenshots will be dynamically added here -->
+      </div>
+    </div>
+  </div> <!-- End main-app -->
 
   <script src="panel.js"></script>
 </body>

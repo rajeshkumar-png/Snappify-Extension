@@ -1,0 +1,79 @@
+/* Enhance Tooltip */
+.enhance-tooltip {
+    position: absolute;
+    display: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+    z-index: 99999;
+    user-select: none;
+    pointer-events: all;
+    transition: all 0.2s ease;
+    animation: enhanceTooltipFadeIn 0.3s ease;
+    white-space: nowrap;
+}
+
+@keyframes enhanceTooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.enhance-tooltip:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+}
+
+.enhance-tooltip:active {
+    transform: translateY(0);
+}
+
+.enhance-tooltip.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.enhance-tooltip.loading::after {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: 8px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.enhance-tooltip-icon {
+    font-size: 16px;
+    margin-right: 6px;
+}
+
+/* Textarea selection highlight */
+.step-description::selection {
+    background: rgba(102, 126, 234, 0.3);
+    color: inherit;
+}
+
+.step-description::-moz-selection {
+    background: rgba(102, 126, 234, 0.3);
+    color: inherit;
+}

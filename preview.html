@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <title>Snappify Guide</title>
   <link rel="stylesheet" href="preview.css">
+  <link rel="stylesheet" href="editor-styles.css">
+  <link rel="stylesheet" href="enhance-tooltip.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 </head>
 
@@ -30,6 +32,99 @@
   <!-- Floating Toolbar -->
   <div class="toolbar">
     <button class="primary-btn" id="downloadPdf">Export to PDF</button>
+  </div>
+
+  <!-- Screenshot Editor Modal -->
+  <div id="editor-modal" class="editor-modal" style="display: none;">
+    <div class="editor-overlay"></div>
+    <div class="editor-container">
+      <div class="editor-header">
+        <h2 class="editor-title">Edit Screenshot</h2>
+        <div class="editor-tools">
+          <button class="tool-btn active" id="highlight-tool" title="Add Highlight Box">
+            <span>📦</span>
+            <span class="tool-label">Highlight</span>
+          </button>
+          <button class="tool-btn" id="pencil-tool" title="Draw Freehand">
+            <span>✏️</span>
+            <span class="tool-label">Draw</span>
+          </button>
+          <button class="tool-btn" id="text-tool" title="Add Text">
+            <span>📝</span>
+            <span class="tool-label">Text</span>
+          </button>
+          <div class="toolbar-separator"></div>
+          <div class="text-format-group" id="text-format-group" style="display: none;">
+            <select id="font-family" class="format-select">
+              <option value="Inter, sans-serif">Inter</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="Courier New, monospace">Courier</option>
+              <option value="Comic Sans MS, cursive">Comic Sans</option>
+            </select>
+            <select id="font-size" class="format-select">
+              <option value="12">12px</option>
+              <option value="14">14px</option>
+              <option value="16">16px</option>
+              <option value="18">18px</option>
+              <option value="20">20px</option>
+              <option value="24" selected>24px</option>
+              <option value="28">28px</option>
+              <option value="32">32px</option>
+              <option value="36">36px</option>
+              <option value="48">48px</option>
+            </select>
+            <button class="format-btn" id="bold-btn" title="Bold">
+              <span style="font-weight: 900;">B</span>
+            </button>
+            <button class="format-btn" id="italic-btn" title="Italic">
+              <span style="font-style: italic;">I</span>
+            </button>
+            <button class="format-btn" id="bg-toggle-btn" title="Background">
+              <span>🎨</span>
+            </button>
+          </div>
+          <div class="color-picker">
+            <label>Color:</label>
+            <input type="color" id="highlight-color" value="#ff7a59">
+          </div>
+          <div class="line-width-picker">
+            <label>Size:</label>
+            <input type="range" id="line-width" min="2" max="10" value="5">
+            <span id="line-width-value">5</span>
+          </div>
+          <button class="tool-btn" id="undo-tool" title="Undo Last">
+            <span>↶</span>
+          </button>
+          <button class="tool-btn" id="clear-tool" title="Clear All Edits">
+            <span>🗑️</span>
+          </button>
+        </div>
+        <button class="close-editor-btn" id="close-editor">✕</button>
+      </div>
+
+      <div class="editor-canvas-container">
+        <div class="canvas-wrapper">
+          <canvas id="editor-canvas"></canvas>
+          <input type="text" id="inline-text-input" class="inline-text-input" style="display: none;"
+            placeholder="Type text here...">
+        </div>
+        <div class="editor-instructions">
+          Click and drag to draw highlight boxes • Draw freehand with pencil tool • Click to add text annotations
+        </div>
+      </div>
+
+      <div class="editor-footer">
+        <button class="secondary-btn" id="cancel-edit">Cancel</button>
+        <button class="primary-btn" id="save-edit">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhance Tooltip -->
+  <div id="enhance-tooltip" class="enhance-tooltip">
+    <span class="enhance-tooltip-icon">✨</span>
+    <span id="enhance-tooltip-text">Enhance with AI</span>
   </div>
 
   <script src="libs/jspdf.umd.min.js"></script>
