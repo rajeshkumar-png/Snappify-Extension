@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   let capturedSteps = 0;
+  let initialStepsWhenContinuing = 0; // Track initial count when continuing
 
   // Load history on startup
   loadHistory();
@@ -87,13 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
             <span>${item.stepCount || 0} screenshots</span>
           </div>
         </div>
+        <button class="continue-btn" title="Continue Recording" data-id="${item.id}">🎥</button>
         <button class="delete-btn" title="Delete" data-id="${item.id}">🗑️</button>
       `;
 
       // Click event for the item (load history)
       historyItem.addEventListener("click", (e) => {
-        // Don't trigger if delete button was clicked
-        if (e.target.closest(".delete-btn")) return;
+        // Don't trigger if any button was clicked
+        if (e.target.closest(".delete-btn") || e.target.closest(".continue-btn")) return;
 
         chrome.runtime.sendMessage({ type: "load-history", id: item.id }, (response) => {
           if (chrome.runtime.lastError) {
@@ -102,19 +104,61 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
+      // Click event for continue button
+      const continueBtn = historyItem.querySelector(".continue-btn");
+      continueBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // prevent item click
+
+        console.log("Continue recording for history item:", item.id);
+
+        // Send message to background to continue this recording
+        chrome.runtime.sendMessage({
+          type: "continue-recording",
+          historyId: item.id
+        }, (response) => {
+          if (chrome.runtime.lastError) {
+            console.log('Error continuing recording:', chrome.runtime.lastError.message);
+            return;
+          }
+
+          if (!response || !response.success) {
+            console.log('Failed to continue recording');
+            return;
+          }
+
+          console.log('Continue recording response:', response);
+
+          // Switch to recording mode UI
+          if (historySection) historySection.style.display = "none";
+          livePreviewSection.style.display = "block";
+          startBtn.style.display = "none";
+          stopBtn.style.display = "block";
+
+          // Clear existing preview content
+          screenshotsContainer.innerHTML = "";
+
+          // Track initial count and current count
+          capturedSteps = item.stepCount || 0;
+          initialStepsWhenContinuing = capturedSteps;
+          stepCounter.textContent = capturedSteps.toString();
+
+          // Load existing screenshots into preview
+          if (item.steps && item.steps.length > 0) {
+            console.log(`Loading ${item.steps.length} existing screenshots into preview`);
+            item.steps.forEach((step, index) => {
+              addScreenshotToPreview(step, index + 1);
+            });
+          }
+        });
+      });
+
       // Click event for delete button
       const deleteBtn = historyItem.querySelector(".delete-btn");
       deleteBtn.addEventListener("click", (e) => {
         e.stopPropagation(); // prevent item click
-        chrome.runtime.sendMessage({ type: "delete-history", id: item.id }, (res) => {
-          if (chrome.runtime.lastError) {
-            console.log('Error deleting history:', chrome.runtime.lastError.message);
-            return;
-          }
-          if (res && res.success) {
-            renderHistory(res.history);
-          }
-        });
+
+        // Show confirmation modal
+        showDeleteConfirmation(item.id, item.title || "this workflow");
       });
 
       historyList.appendChild(historyItem);
@@ -138,6 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Reset preview
     capturedSteps = 0;
+    initialStepsWhenContinuing = 0; // Reset tracking for new recording
     screenshotsContainer.innerHTML = "";
     stepCounter.textContent = "0";
 
@@ -146,6 +191,43 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   stopBtn.addEventListener("click", () => {
+    // Check if any steps were captured (or new steps when continuing)
+    const noNewSteps = (initialStepsWhenContinuing > 0 && capturedSteps === initialStepsWhenContinuing) || capturedSteps === 0;
+
+    if (noNewSteps) {
+      // Send message to web page to show error toast
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0] && tabs[0].id) {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            type: "show-error-toast",
+            message: "No Steps Recorded Yet!"
+          }).catch(() => {
+            // If content script not available, show in panel as fallback
+            console.log('Could not show error on web page');
+          });
+        }
+      });
+
+      // Reset UI to initial state
+      if (historySection) historySection.style.display = "block";
+      livePreviewSection.style.display = "none";
+      stopBtn.style.display = "none";
+      startBtn.style.display = "block";
+
+      // Send stop message to background to reset recording state
+      chrome.runtime.sendMessage({ type: "stop-capture-no-steps" }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.log('Error stopping capture:', chrome.runtime.lastError.message);
+        }
+      });
+
+      // Reset tracking
+      initialStepsWhenContinuing = 0;
+
+      return; // Don't proceed further
+    }
+
+    // Normal flow - steps were captured
     chrome.runtime.sendMessage({ type: "stop-capture" }, (response) => {
       if (chrome.runtime.lastError) {
         console.log('Error stopping capture:', chrome.runtime.lastError.message);
@@ -160,6 +242,9 @@ document.addEventListener("DOMContentLoaded", () => {
     stopBtn.style.display = "none";
     startBtn.style.display = "block";
 
+    // Reset tracking
+    initialStepsWhenContinuing = 0;
+
     // Reload history to show the new item
     setTimeout(loadHistory, 500);
   });
@@ -172,6 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Settings feature coming soon!");
   });
 
+
   // Listen for new steps from background
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "new-step-captured") {
@@ -181,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  function addScreenshotToPreview(step) {
+  function addScreenshotToPreview(step, stepNumber) {
     const screenshotItem = document.createElement("div");
     screenshotItem.className = "screenshot-item";
 
@@ -195,7 +281,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const meta = document.createElement("div");
     meta.className = "screenshot-meta";
-    meta.textContent = `Step ${capturedSteps}`;
+    // Use provided stepNumber or current capturedSteps count
+    meta.textContent = `Step ${stepNumber || capturedSteps}`;
 
     screenshotItem.appendChild(img);
     screenshotItem.appendChild(description);
@@ -207,4 +294,115 @@ document.addEventListener("DOMContentLoaded", () => {
     screenshotsContainer.scrollTop = screenshotsContainer.scrollHeight;
   }
 
+  // Error Toast Notification Function
+  function showErrorToast(message) {
+    // Create or get toast container
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.className = 'toast-container';
+      document.body.appendChild(toastContainer);
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = 'toast error-toast';
+
+    toast.innerHTML = `
+      <div class="toast-content">
+        <div class="toast-simple-message">
+          ${message}
+          <button class="toast-close-simple" onclick="this.closest('.toast').remove()">✕</button>
+        </div>
+      </div>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+      if (toast && toast.parentElement) {
+        toast.classList.add('fade-out');
+        setTimeout(() => {
+          if (toast && toast.parentElement) {
+            toast.remove();
+          }
+        }, 300);
+      }
+    }, 4000);
+  }
+
 });
+
+// Show delete confirmation modal
+function showDeleteConfirmation(itemId, itemTitle) {
+  // Create modal overlay
+  const modal = document.createElement('div');
+  modal.className = 'delete-modal-overlay';
+
+  modal.innerHTML = `
+    <div class="delete-modal">
+      <div class="delete-modal-icon">⚠️</div>
+      <h3 class="delete-modal-title">Delete Workflow?</h3>
+      <p class="delete-modal-message">
+        Are you sure you want to delete "<strong>${itemTitle}</strong>"?<br>
+        This action cannot be undone.
+      </p>
+      <div class="delete-modal-buttons">
+        <button class="modal-btn modal-btn-cancel" id="delete-cancel">No, Cancel</button>
+        <button class="modal-btn modal-btn-delete" id="delete-confirm">Yes, Delete</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Add event listeners
+  const cancelBtn = modal.querySelector('#delete-cancel');
+  const confirmBtn = modal.querySelector('#delete-confirm');
+
+  // Cancel button - just close modal
+  cancelBtn.addEventListener('click', () => {
+    modal.classList.add('fade-out');
+    setTimeout(() => {
+      if (modal.parentElement) {
+        modal.remove();
+      }
+    }, 200);
+  });
+
+  // Confirm button - delete item and close modal
+  confirmBtn.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ type: "delete-history", id: itemId }, (res) => {
+      if (chrome.runtime.lastError) {
+        console.log('Error deleting history:', chrome.runtime.lastError.message);
+        return;
+      }
+      if (res && res.success) {
+        // Close modal first
+        modal.classList.add('fade-out');
+        setTimeout(() => {
+          if (modal.parentElement) {
+            modal.remove();
+          }
+        }, 200);
+
+        // Then update history display
+        const renderHistory = window.renderHistory;
+        if (renderHistory && res.history) {
+          renderHistory(res.history);
+        } else {
+          // Reload the page if render function not available
+          location.reload();
+        }
+      }
+    });
+  });
+
+  // Click outside to cancel
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      cancelBtn.click();
+    }
+  });
+}

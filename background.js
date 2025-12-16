@@ -1,5 +1,6 @@
 let isRecording = false;
 let steps = [];
+let continuingHistoryId = null; // Track which history item we're continuing
 
 // Restore previous steps on startup (optional)
 chrome.storage.local.get(["steps"], (res) => {
@@ -91,6 +92,95 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return;
   }
 
+  // Continue recording from existing history item
+  if (msg.type === "continue-recording") {
+    console.log("Background: Continue recording for history ID:", msg.historyId);
+
+    // Load the history item's steps
+    chrome.storage.local.get(["history"], (res) => {
+      const history = res.history || [];
+      const historyItem = history.find(item => item.id === msg.historyId);
+
+      if (historyItem) {
+        // Load existing steps
+        steps = [...historyItem.steps];
+        continuingHistoryId = msg.historyId;
+        isRecording = true;
+
+        console.log(`Background: Loaded ${steps.length} existing steps, continuing recording`);
+
+        // Find and enable recording on active tab
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (!tabs || tabs.length === 0) {
+            console.error("Background: No active tab found");
+            sendResponse({ success: false });
+            return;
+          }
+
+          const tab = tabs[0];
+
+          if (!tab.url || tab.url.startsWith("chrome://") || tab.url.startsWith("edge://") || tab.url.startsWith("chrome-extension://")) {
+            console.warn("Cannot record on this page.");
+            sendResponse({ success: false });
+            return;
+          }
+
+          // Enable recording on the tab
+          chrome.tabs.sendMessage(tab.id, { type: "enable-recording" })
+            .then(() => {
+              console.log("Background: Successfully enabled recording for continuation");
+              sendResponse({ success: true });
+            })
+            .catch(err => {
+              // Try to inject content script if not loaded
+              chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                files: ['content.js']
+              })
+                .then(() => {
+                  setTimeout(() => {
+                    chrome.tabs.sendMessage(tab.id, { type: "enable-recording" })
+                      .then(() => sendResponse({ success: true }))
+                      .catch(err2 => {
+                        console.error("Background: Failed after injection:", err2);
+                        sendResponse({ success: false });
+                      });
+                  }, 200);
+                })
+                .catch(injectErr => {
+                  console.error("Background: Failed to inject:", injectErr);
+                  sendResponse({ success: false });
+                });
+            });
+        });
+      } else {
+        console.error("Background: History item not found");
+        sendResponse({ success: false });
+      }
+    });
+
+    return true; // async response
+  }
+
+
+
+  // Stop capture with no steps - don't open preview
+  if (msg.type === "stop-capture-no-steps") {
+    isRecording = false;
+    continuingHistoryId = null; // Reset continuation tracking
+
+    // Just disable recording, don't save to history or open preview
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0] && tabs[0].id) {
+        try {
+          chrome.tabs.sendMessage(tabs[0].id, { type: "disable-recording" }).catch(() => { });
+        } catch (e) { /* ignore */ }
+      }
+    });
+
+    sendResponse({ success: true });
+    return false;
+  }
 
   // Stop capture from panel
   if (msg.type === "stop-capture") {
@@ -99,26 +189,56 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // Save to history before stopping
     if (steps.length > 0) {
       chrome.storage.local.get(["history"], (res) => {
-        const history = res.history || [];
-        const newHistoryItem = {
-          id: Date.now(),
-          date: new Date().toLocaleString(),
-          steps: [...steps], // copy steps
-          stepCount: steps.length,
-          title: `Workflow ${new Date().toLocaleTimeString()}`
-        };
+        let history = res.history || [];
 
-        // Add to beginning
-        history.unshift(newHistoryItem);
+        if (continuingHistoryId) {
+          // Update existing history item
+          console.log("Background: Updating existing history item:", continuingHistoryId);
+          const itemIndex = history.findIndex(item => item.id === continuingHistoryId);
 
-        // Keep only last 10 items
-        if (history.length > 10) {
-          history.length = 10;
+          if (itemIndex !== -1) {
+            // Update the existing item
+            history[itemIndex] = {
+              ...history[itemIndex],
+              steps: [...steps],
+              stepCount: steps.length,
+              date: new Date().toLocaleString() // Update timestamp
+            };
+
+            console.log(`Background: Updated history item with ${steps.length} total steps`);
+          } else {
+            console.error("Background: Could not find history item to update");
+          }
+
+          // Reset continuation tracking
+          continuingHistoryId = null;
+        } else {
+          // Create new history item (normal flow)
+          const newHistoryItem = {
+            id: Date.now(),
+            date: new Date().toLocaleString(),
+            steps: [...steps], // copy steps
+            stepCount: steps.length,
+            title: `Workflow ${new Date().toLocaleTimeString()}`
+          };
+
+          // Add to beginning
+          history.unshift(newHistoryItem);
+
+          // Keep only last 10 items
+          if (history.length > 10) {
+            history.length = 10;
+          }
+
+          console.log("Background: Created new history item");
         }
 
         chrome.storage.local.set({ history });
         console.log("Background: Saved to history", history);
       });
+    } else {
+      // Reset continuation tracking even if no steps
+      continuingHistoryId = null;
     }
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -129,10 +249,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }
     });
 
-    // Always open preview page
-    chrome.tabs.create({
-      url: chrome.runtime.getURL("preview.html")
-    });
+    // Only open preview if this was a NEW recording (not continuing)
+    if (!continuingHistoryId) {
+      chrome.tabs.create({
+        url: chrome.runtime.getURL("preview.html")
+      });
+    } else {
+      console.log("Background: Continuing recording - preview skipped");
+    }
 
     return;
   }

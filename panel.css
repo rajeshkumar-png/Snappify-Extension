@@ -1,5 +1,5 @@
 :root {
-  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --bg-color: #ffffff;
   --text-primary: #1f2937;
   --text-secondary: #6b7280;
@@ -29,8 +29,8 @@ body::before {
   height: 100%;
   background: linear-gradient(135deg,
       #f0f9ff 0%,
-      #e0f2fe 25%,
-      #faf5ff 50%,
+      #e0e7ff 25%,
+      #fae8ff 50%,
       #fce7f3 75%,
       #fff7ed 100%);
   background-size: 400% 400%;
@@ -140,7 +140,7 @@ body::before {
   position: absolute;
   width: 4px;
   height: 4px;
-  background: radial-gradient(circle, #a855f7, transparent);
+  background: radial-gradient(circle, #764ba2, transparent);
   border-radius: 50%;
   animation: sparkle 3s infinite ease-in-out;
   pointer-events: none;
@@ -331,7 +331,7 @@ body::before {
   width: 100%;
   padding: 18px;
   background: var(--primary-gradient);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
   border-radius: 16px;
   margin-bottom: 16px;
   position: relative;
@@ -339,7 +339,7 @@ body::before {
 
 .start-btn:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
 }
 
 .start-btn:active {
@@ -419,7 +419,7 @@ body::before {
 }
 
 .upsell-link:hover {
-  color: #6366f1;
+  color: #667eea;
 }
 
 /* Search */
@@ -438,7 +438,7 @@ body::before {
 
 .search-bar:focus {
   outline: none;
-  border-color: #6366f1;
+  border-color: #667eea;
 }
 
 /* Content / List */
@@ -505,9 +505,9 @@ body::before {
 /* Toast Messages */
 .toast-container {
   position: fixed;
-  top: 80px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 10000;
   display: flex;
   flex-direction: column;
@@ -625,11 +625,11 @@ body::before {
 
   0%,
   100% {
-    text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    text-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
   }
 
   50% {
-    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
   }
 }
 
@@ -640,7 +640,7 @@ body::before {
   border-radius: 20px;
   font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
   animation: counterPulse 1s ease infinite;
 }
 
@@ -675,12 +675,12 @@ body::before {
 }
 
 .screenshots-container::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #6366f1, #a855f7);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   border-radius: 10px;
 }
 
 .screenshots-container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  background: linear-gradient(135deg, #5568d3, #653a91);
 }
 
 .screenshot-item {
@@ -708,8 +708,8 @@ body::before {
 
 .screenshot-item:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
-  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.3);
 }
 
 .screenshot-item img {
@@ -754,16 +754,16 @@ body::before {
 }
 
 .history-item:hover {
-  border-color: #6366f1;
+  border-color: #667eea;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
 .history-icon {
   width: 36px;
   height: 36px;
   background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%);
-  color: #6366f1;
+  color: #667eea;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -812,6 +812,28 @@ body::before {
 .delete-btn:hover {
   background: #fee2e2;
   color: #ef4444;
+  transform: scale(1.1);
+}
+
+.continue-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 2;
+  font-size: 16px;
+}
+
+.continue-btn:hover {
+  background: #ede9fe;
+  color: #667eea;
   transform: scale(1.1);
 }
 
@@ -940,8 +962,8 @@ body::before {
 .spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid rgba(99, 102, 241, 0.2);
-  border-top-color: #6366f1;
+  border: 4px solid rgba(102, 126, 234, 0.2);
+  border-top-color: #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 16px;
@@ -982,4 +1004,277 @@ body::before {
 
 .info-text:last-child {
   margin-bottom: 0;
+}
+
+/* Error Toast Styles - Purple Dream Theme */
+.error-toast {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+  animation: slideInBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  max-width: 380px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.error-toast.fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+.toast-content {
+  position: relative;
+}
+
+/* Simplified Toast Message */
+.toast-simple-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.toast-close-simple {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.toast-close-simple:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Original detailed toast styles (kept for backward compatibility) */
+.toast-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast-icon {
+  font-size: 24px;
+  animation: bounce 2s infinite;
+}
+
+.toast-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.toast-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.toast-body {
+  padding: 16px 20px;
+}
+
+.toast-message {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.toast-tip {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border-left: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Delete Confirmation Modal */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  animation: fadeIn 0.2s ease;
+}
+
+.delete-modal-overlay.fade-out {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+.delete-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  text-align: center;
+}
+
+.delete-modal-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  animation: iconBounce 0.6s ease;
+}
+
+.delete-modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.5px;
+}
+
+.delete-modal-message {
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.6;
+  margin: 0 0 28px 0;
+}
+
+.delete-modal-message strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+.delete-modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.modal-btn {
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.modal-btn-cancel {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.modal-btn-cancel:hover {
+  background: #e5e7eb;
+  color: #374151;
+  transform: translateY(-1px);
+}
+
+.modal-btn-delete {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.modal-btn-delete:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes iconBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }

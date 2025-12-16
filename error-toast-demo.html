@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Toast Demo - Snappify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="panel.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .demo-container {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .demo-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .demo-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 40px;
+        }
+
+        .btn-primary {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 40px;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .code-title {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">Error Toast Demo</h1>
+        <p class="demo-subtitle">
+            Click the button below to see the error toast notification<br>
+            that appears when stopping recording with no steps captured
+        </p>
+
+        <button class="btn-primary" onclick="showDemoToast()">
+            🎬 Show Error Toast
+        </button>
+
+        <div class="code-block">
+            <div class="code-title">📋 Error Message Content:</div>
+            <div>
+                <strong>Message:</strong> No Steps Recorded Yet!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDemoToast() {
+            showErrorToast("No Steps Recorded Yet!");
+        }
+
+        function showErrorToast(message) {
+            // Create or get toast container
+            let toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container';
+                document.body.appendChild(toastContainer);
+            }
+
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast error-toast';
+
+            toast.innerHTML = `
+        <div class="toast-content">
+          <div class="toast-simple-message">
+            ${message}
+            <button class="toast-close-simple" onclick="this.closest('.toast').remove()">✕</button>
+          </div>
+        </div>
+      `;
+
+            toastContainer.appendChild(toast);
+
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                if (toast && toast.parentElement) {
+                    toast.classList.add('fade-out');
+                    setTimeout(() => {
+                        if (toast && toast.parentElement) {
+                            toast.remove();
+                        }
+                    }, 300);
+                }
+            }, 4000);
+        }
+    </script>
+</body>
+
+</html>

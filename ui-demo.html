@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snappify Color Variations Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #fff;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .demo-badge {
+            display: inline-block;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            animation: pulse 2s infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(102, 126, 234, 0.7);
+            }
+        }
+
+        .demo-title {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #b8b8d1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .demo-subtitle {
+            font-size: 18px;
+            color: #8b8b9f;
+            margin-bottom: 10px;
+        }
+
+        .demo-instruction {
+            font-size: 14px;
+            color: #6b6b7f;
+            font-style: italic;
+        }
+
+        /* Grid Layout for Panels */
+        .panels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        /* Panel Container */
+        .panel-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .panel-label {
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Panel Simulator */
+        .panel-simulator {
+            width: 400px;
+            height: 600px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .panel-simulator:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Animated Backgrounds for Different Themes */
+        .panel-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            opacity: 0.6;
+            z-index: 0;
+        }
+
+        .bg-purple {
+            background: linear-gradient(135deg,
+                    #f0f9ff 0%,
+                    #e0e7ff 25%,
+                    #fae8ff 50%,
+                    #fce7f3 75%,
+                    #fff7ed 100%);
+        }
+
+        .bg-pink {
+            background: linear-gradient(135deg,
+                    #fef3c7 0%,
+                    #fce7f3 25%,
+                    #fbcfe8 50%,
+                    #fecaca 75%,
+                    #fed7aa 100%);
+        }
+
+        .bg-blue {
+            background: linear-gradient(135deg,
+                    #dbeafe 0%,
+                    #bfdbfe 25%,
+                    #e0f2fe 50%,
+                    #cffafe 75%,
+                    #d1fae5 100%);
+        }
+
+        .bg-green {
+            background: linear-gradient(135deg,
+                    #d1fae5 0%,
+                    #a7f3d0 25%,
+                    #6ee7b7 50%,
+                    #5eead4 75%,
+                    #7dd3fc 100%);
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Floating Icons */
+        .floating-icons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 40px;
+            opacity: 0.08;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .floating-icon:nth-child(1) {
+            left: 10%;
+            top: 20%;
+            animation-delay: 0s;
+        }
+
+        .floating-icon:nth-child(2) {
+            left: 70%;
+            top: 10%;
+            animation-delay: 5s;
+        }
+
+        .floating-icon:nth-child(3) {
+            left: 30%;
+            top: 60%;
+            animation-delay: 2s;
+        }
+
+        .floating-icon:nth-child(4) {
+            left: 80%;
+            top: 70%;
+            animation-delay: 8s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(20px, -30px) rotate(5deg);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) rotate(-5deg);
+            }
+
+            75% {
+                transform: translate(30px, 10px) rotate(3deg);
+            }
+        }
+
+        /* Panel Content */
+        .panel-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: iconPulse 3s ease infinite;
+        }
+
+        /* Theme-specific brand icons */
+        .theme-purple .brand-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .theme-pink .brand-icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .theme-blue .brand-icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .theme-green .brand-icon {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        @keyframes iconPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .brand-text {
+            font-size: 18px;
+            font-weight: 800;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-purple .brand-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+        }
+
+        .theme-pink .brand-text {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+        }
+
+        .theme-blue .brand-text {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+        }
+
+        .theme-green .brand-text {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            -webkit-background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(249, 250, 251, 0.8);
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-size: 16px;
+        }
+
+        .icon-btn:hover {
+            background: rgba(229, 231, 235, 0.9);
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 32px 24px;
+            text-align: center;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 18px;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Theme-specific buttons */
+        .theme-purple .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .theme-pink .start-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 8px 24px rgba(240, 147, 251, 0.4);
+        }
+
+        .theme-blue .start-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
+        }
+
+        .theme-green .start-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 8px 24px rgba(67, 233, 123, 0.4);
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .start-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .theme-purple .start-btn:hover {
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+
+        .theme-pink .start-btn:hover {
+            box-shadow: 0 12px 32px rgba(240, 147, 251, 0.6);
+        }
+
+        .theme-blue .start-btn:hover {
+            box-shadow: 0 12px 32px rgba(79, 172, 254, 0.6);
+        }
+
+        .theme-green .start-btn:hover {
+            box-shadow: 0 12px 32px rgba(67, 233, 123, 0.6);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .btn-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .record-icon {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: recordBlink 1.5s ease infinite;
+        }
+
+        @keyframes recordBlink {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            }
+
+            50% {
+                opacity: 0.7;
+                box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+            }
+        }
+
+        /* History Section */
+        .history-section {
+            padding: 0 16px 16px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            padding: 12px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .theme-purple .history-item:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .theme-pink .history-item:hover {
+            box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);
+            border-color: #f093fb;
+        }
+
+        .theme-blue .history-item:hover {
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.2);
+            border-color: #4facfe;
+        }
+
+        .theme-green .history-item:hover {
+            box-shadow: 0 4px 12px rgba(67, 233, 123, 0.2);
+            border-color: #43e97b;
+        }
+
+        .history-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .theme-purple .history-icon {
+            background: linear-gradient(135deg, #e0e7ff 0%, #fae8ff 100%);
+        }
+
+        .theme-pink .history-icon {
+            background: linear-gradient(135deg, #fce7f3 0%, #fed7aa 100%);
+        }
+
+        .theme-blue .history-icon {
+            background: linear-gradient(135deg, #dbeafe 0%, #cffafe 100%);
+        }
+
+        .theme-green .history-icon {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .history-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-meta {
+            font-size: 11px;
+            color: #6b7280;
+            display: flex;
+            gap: 6px;
+        }
+
+        .delete-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(249, 250, 251, 0.8);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+
+        .delete-btn:hover {
+            background: #fee2e2;
+            transform: scale(1.1);
+        }
+
+        /* Selection Button */
+        .select-theme-btn {
+            margin-top: 16px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            backdrop-filter: blur(10px);
+        }
+
+        .select-theme-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .panels-grid {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+
+            .demo-title {
+                font-size: 32px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .panel-simulator {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-container">
+        <!-- Demo Header -->
+        <div class="demo-header">
+            <div class="demo-badge">✨ COLOR VARIATIONS DEMO</div>
+            <h1 class="demo-title">Choose Your Perfect Color Theme</h1>
+            <p class="demo-subtitle">View all 4 stunning color combinations for your Snappify extension</p>
+            <p class="demo-instruction">Each panel shows the exact same design with different color gradients</p>
+        </div>
+
+        <!-- Panels Grid -->
+        <div class="panels-grid">
+            <!-- Purple Theme -->
+            <div class="panel-wrapper">
+                <div class="panel-label" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    💜 Purple Dream
+                </div>
+                <div class="panel-simulator theme-purple">
+                    <div class="panel-bg bg-purple"></div>
+                    <div class="floating-icons">
+                        <div class="floating-icon">📸</div>
+                        <div class="floating-icon">🎬</div>
+                        <div class="floating-icon">📷</div>
+                        <div class="floating-icon">✨</div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-header">
+                            <div class="brand">
+                                <div class="brand-icon">📸</div>
+                                <span class="brand-text">Snappify</span>
+                            </div>
+                            <div class="header-actions">
+                                <button class="icon-btn">⚙️</button>
+                                <button class="icon-btn">✕</button>
+                            </div>
+                        </div>
+                        <div class="hero-section">
+                            <button class="start-btn">
+                                <div class="btn-content">
+                                    <span class="record-icon"></span>
+                                    <span>Start Capture</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="history-section">
+                            <div class="section-title">Recent History</div>
+                            <div class="history-list">
+                                <div class="history-item" style="animation-delay: 0.1s;">
+                                    <div class="history-icon">📄</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Login Flow</div>
+                                        <div class="history-meta">
+                                            <span>Today</span>
+                                            <span>•</span>
+                                            <span>12 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                                <div class="history-item" style="animation-delay: 0.2s;">
+                                    <div class="history-icon">📋</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Bug Report</div>
+                                        <div class="history-meta">
+                                            <span>Yesterday</span>
+                                            <span>•</span>
+                                            <span>8 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                                <div class="history-item" style="animation-delay: 0.3s;">
+                                    <div class="history-icon">✨</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Feature Demo</div>
+                                        <div class="history-meta">
+                                            <span>Dec 15</span>
+                                            <span>•</span>
+                                            <span>15 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="select-theme-btn" onclick="selectTheme('purple')">
+                    ✅ Select Purple Theme
+                </button>
+            </div>
+
+            <!-- Pink Theme -->
+            <div class="panel-wrapper">
+                <div class="panel-label" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    💗 Pink Sunset
+                </div>
+                <div class="panel-simulator theme-pink">
+                    <div class="panel-bg bg-pink"></div>
+                    <div class="floating-icons">
+                        <div class="floating-icon">📸</div>
+                        <div class="floating-icon">🎬</div>
+                        <div class="floating-icon">📷</div>
+                        <div class="floating-icon">✨</div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-header">
+                            <div class="brand">
+                                <div class="brand-icon">📸</div>
+                                <span class="brand-text">Snappify</span>
+                            </div>
+                            <div class="header-actions">
+                                <button class="icon-btn">⚙️</button>
+                                <button class="icon-btn">✕</button>
+                            </div>
+                        </div>
+                        <div class="hero-section">
+                            <button class="start-btn">
+                                <div class="btn-content">
+                                    <span class="record-icon"></span>
+                                    <span>Start Capture</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="history-section">
+                            <div class="section-title">Recent History</div>
+                            <div class="history-list">
+                                <div class="history-item" style="animation-delay: 0.1s;">
+                                    <div class="history-icon">📄</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Login Flow</div>
+                                        <div class="history-meta">
+                                            <span>Today</span>
+                                            <span>•</span>
+                                            <span>12 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                                <div class="history-item" style="animation-delay: 0.2s;">
+                                    <div class="history-icon">📋</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Bug Report</div>
+                                        <div class="history-meta">
+                                            <span>Yesterday</span>
+                                            <span>•</span>
+                                            <span>8 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                                <div class="history-item" style="animation-delay: 0.3s;">
+                                    <div class="history-icon">✨</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Feature Demo</div>
+                                        <div class="history-meta">
+                                            <span>Dec 15</span>
+                                            <span>•</span>
+                                            <span>15 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="select-theme-btn" onclick="selectTheme('pink')">
+                    ✅ Select Pink Theme
+                </button>
+            </div>
+
+            <!-- Blue Theme -->
+            <div class="panel-wrapper">
+                <div class="panel-label" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    💙 Ocean Blue
+                </div>
+                <div class="panel-simulator theme-blue">
+                    <div class="panel-bg bg-blue"></div>
+                    <div class="floating-icons">
+                        <div class="floating-icon">📸</div>
+                        <div class="floating-icon">🎬</div>
+                        <div class="floating-icon">📷</div>
+                        <div class="floating-icon">✨</div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-header">
+                            <div class="brand">
+                                <div class="brand-icon">📸</div>
+                                <span class="brand-text">Snappify</span>
+                            </div>
+                            <div class="header-actions">
+                                <button class="icon-btn">⚙️</button>
+                                <button class="icon-btn">✕</button>
+                            </div>
+                        </div>
+                        <div class="hero-section">
+                            <button class="start-btn">
+                                <div class="btn-content">
+                                    <span class="record-icon"></span>
+                                    <span>Start Capture</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="history-section">
+                            <div class="section-title">Recent History</div>
+                            <div class="history-list">
+                                <div class="history-item" style="animation-delay: 0.1s;">
+                                    <div class="history-icon">📄</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Login Flow</div>
+                                        <div class="history-meta">
+                                            <span>Today</span>
+                                            <span>•</span>
+                                            <span>12 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                                <div class="history-item" style="animation-delay: 0.2s;">
+                                    <div class="history-icon">📋</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Bug Report</div>
+                                        <div class="history-meta">
+                                            <span>Yesterday</span>
+                                            <span>•</span>
+                                            <span>8 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                                <div class="history-item" style="animation-delay: 0.3s;">
+                                    <div class="history-icon">✨</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Feature Demo</div>
+                                        <div class="history-meta">
+                                            <span>Dec 15</span>
+                                            <span>•</span>
+                                            <span>15 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="select-theme-btn" onclick="selectTheme('blue')">
+                    ✅ Select Blue Theme
+                </button>
+            </div>
+
+            <!-- Green Theme -->
+            <div class="panel-wrapper">
+                <div class="panel-label" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    💚 Mint Fresh
+                </div>
+                <div class="panel-simulator theme-green">
+                    <div class="panel-bg bg-green"></div>
+                    <div class="floating-icons">
+                        <div class="floating-icon">📸</div>
+                        <div class="floating-icon">🎬</div>
+                        <div class="floating-icon">📷</div>
+                        <div class="floating-icon">✨</div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-header">
+                            <div class="brand">
+                                <div class="brand-icon">📸</div>
+                                <span class="brand-text">Snappify</span>
+                            </div>
+                            <div class="header-actions">
+                                <button class="icon-btn">⚙️</button>
+                                <button class="icon-btn">✕</button>
+                            </div>
+                        </div>
+                        <div class="hero-section">
+                            <button class="start-btn">
+                                <div class="btn-content">
+                                    <span class="record-icon"></span>
+                                    <span>Start Capture</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="history-section">
+                            <div class="section-title">Recent History</div>
+                            <div class="history-list">
+                                <div class="history-item" style="animation-delay: 0.1s;">
+                                    <div class="history-icon">📄</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Login Flow</div>
+                                        <div class="history-meta">
+                                            <span>Today</span>
+                                            <span>•</span>
+                                            <span>12 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                                <div class="history-item" style="animation-delay: 0.2s;">
+                                    <div class="history-icon">📋</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Bug Report</div>
+                                        <div class="history-meta">
+                                            <span>Yesterday</span>
+                                            <span>•</span>
+                                            <span>8 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                                <div class="history-item" style="animation-delay: 0.3s;">
+                                    <div class="history-icon">✨</div>
+                                    <div class="history-info">
+                                        <div class="history-title">Feature Demo</div>
+                                        <div class="history-meta">
+                                            <span>Dec 15</span>
+                                            <span>•</span>
+                                            <span>15 steps</span>
+                                        </div>
+                                    </div>
+                                    <button class="delete-btn">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="select-theme-btn" onclick="selectTheme('green')">
+                    ✅ Select Green Theme
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectTheme(theme) {
+            const messages = {
+                purple: '💜 Purple Dream selected! Elegant purple & violet gradients. I will implement this in your extension!',
+                pink: '💗 Pink Sunset selected! Vibrant pink & coral gradients. I will implement this in your extension!',
+                blue: '💙 Ocean Blue selected! Cool cyan & blue gradients. I will implement this in your extension!',
+                green: '💚 Mint Fresh selected! Calm green & turquoise gradients. I will implement this in your extension!'
+            };
+            alert(messages[theme]);
+        }
+    </script>
+</body>
+
+</html>

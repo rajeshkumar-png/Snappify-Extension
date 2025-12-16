@@ -8,134 +8,160 @@
   let activeModal = null;
   let blurOverlay = null;
 
-  // Fun toast messages
-  const toastMessages = [
-    { icon: "🎬", text: "Lights, Camera, Action!" },
-    { icon: "✨", text: "Magic is happening!" },
-    { icon: "🚀", text: "Ready to capture awesomeness!" },
-    { icon: "🎯", text: "Let's document this journey!" },
-    { icon: "📸", text: "Say cheese! Recording started!" },
-    { icon: "🎪", text: "Show time! Recording in progress!" },
-    { icon: "🌟", text: "Capturing your workflow magic!" },
-    { icon: "🎨", text: "Creating your masterpiece!" }
-  ];
+  // // Fun toast messages
+  // const toastMessages = [
+  //   { icon: "🎬", text: "Lights, Camera, Action!" },
+  //   { icon: "✨", text: "Magic is happening!" },
+  //   { icon: "🚀", text: "Ready to capture awesomeness!" },
+  //   { icon: "🎯", text: "Let's document this journey!" },
+  //   { icon: "📸", text: "Say cheese! Recording started!" },
+  //   { icon: "🎪", text: "Show time! Recording in progress!" },
+  //   { icon: "🌟", text: "Capturing your workflow magic!" },
+  //   { icon: "🎨", text: "Creating your masterpiece!" }
+  // ];
 
   // Show toast message at top of webpage
   function showToast() {
+    // Disabled - toastMessages array is commented out
+    return;
+  }
+
+  // Show error toast message centered on webpage
+  function showErrorToast(message) {
     try {
-      console.log("Snappify: showToast() called");
+      console.log("Snappify: showErrorToast() called with message:", message);
 
       if (!document.body) {
         console.error("Snappify: document.body not ready yet");
         return;
       }
 
-      // Remove existing toast if any
-      const existingToast = document.getElementById("snappify-toast");
+      // Remove existing error toast if any
+      const existingToast = document.getElementById("snappify-error-toast");
       if (existingToast && existingToast.parentNode) {
         existingToast.parentNode.removeChild(existingToast);
       }
 
-      // Random message
-      const randomToast = toastMessages[Math.floor(Math.random() * toastMessages.length)];
-      console.log("Snappify: Selected toast message:", randomToast.text);
-
       // Create toast element
       const toast = document.createElement("div");
-      toast.id = "snappify-toast";
+      toast.id = "snappify-error-toast";
       toast.style.cssText = `
         position: fixed;
-        top: 20px;
+        top: 50%;
         left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 20px 36px;
+        padding: 18px 24px;
         border-radius: 16px;
-        font-size: 18px;
-        font-weight: 700;
+        font-size: 15px;
+        font-weight: 600;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
-        z-index: 2147483646;
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+        z-index: 2147483647;
         display: flex;
         align-items: center;
-        gap: 14px;
-        pointer-events: none;
-        animation: snappify-slide-down 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        gap: 16px;
+        pointer-events: auto;
+        animation: snappify-error-slide-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        letter-spacing: 0.3px;
       `;
 
-      // Icon
-      const icon = document.createElement("span");
-      icon.style.cssText = `
-        font-size: 28px;
-        animation: snappify-rotate 0.6s ease;
-      `;
-      icon.textContent = randomToast.icon;
-
-      // Text
+      // Message text
       const text = document.createElement("span");
-      text.textContent = randomToast.text;
+      text.textContent = message;
 
-      toast.appendChild(icon);
+      // Close button
+      const closeBtn = document.createElement("button");
+      closeBtn.textContent = "✕";
+      closeBtn.style.cssText = `
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 600;
+        flex-shrink: 0;
+        transition: all 0.2s;
+      `;
+
+      closeBtn.onmouseover = () => {
+        closeBtn.style.background = "rgba(255, 255, 255, 0.3)";
+        closeBtn.style.transform = "scale(1.1)";
+      };
+
+      closeBtn.onmouseout = () => {
+        closeBtn.style.background = "rgba(255, 255, 255, 0.2)";
+        closeBtn.style.transform = "scale(1)";
+      };
+
+      closeBtn.onclick = () => {
+        if (toast && toast.parentNode) {
+          toast.style.animation = "snappify-error-fade-out 0.3s ease forwards";
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+            }
+          }, 300);
+        }
+      };
+
       toast.appendChild(text);
+      toast.appendChild(closeBtn);
 
-      // Add keyframe animations
-      if (!document.getElementById("snappify-toast-styles")) {
+      // Add keyframe animations if not already added
+      if (!document.getElementById("snappify-error-toast-styles")) {
         const style = document.createElement("style");
-        style.id = "snappify-toast-styles";
+        style.id = "snappify-error-toast-styles";
         style.textContent = `
-          @keyframes snappify-slide-down {
+          @keyframes snappify-error-slide-in {
             0% {
-              transform: translateX(-50%) translateY(-100px);
+              transform: translate(-50%, -50%) scale(0.8);
               opacity: 0;
             }
             100% {
-              transform: translateX(-50%) translateY(0);
+              transform: translate(-50%, -50%) scale(1);
               opacity: 1;
             }
           }
           
-          @keyframes snappify-rotate {
-            0% {
-              transform: rotate(0deg) scale(1);
-            }
-            50% {
-              transform: rotate(180deg) scale(1.2);
-            }
-            100% {
-              transform: rotate(360deg) scale(1);
-            }
-          }
-          
-          @keyframes snappify-fade-up {
+          @keyframes snappify-error-fade-out {
             to {
               opacity: 0;
-              transform: translateX(-50%) translateY(-30px);
+              transform: translate(-50%, -50%) scale(0.9);
             }
           }
         `;
         if (document.head) {
           document.head.appendChild(style);
-          console.log("Snappify: Added toast styles");
+          console.log("Snappify: Added error toast styles");
         }
       }
 
       document.body.appendChild(toast);
-      console.log("Snappify: Toast appended to body - ", randomToast.text);
+      console.log("Snappify: Error toast appended to body");
 
-      // Remove after 2.5 seconds with fade out
+      // Auto-remove after 4 seconds
       setTimeout(() => {
-        toast.style.animation = "snappify-fade-up 0.4s ease forwards";
-        setTimeout(() => {
-          if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-            console.log("Snappify: Toast removed");
-          }
-        }, 400);
-      }, 2500);
+        if (toast && toast.parentNode) {
+          toast.style.animation = "snappify-error-fade-out 0.3s ease forwards";
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+              console.log("Snappify: Error toast removed");
+            }
+          }, 300);
+        }
+      }, 4000);
 
     } catch (e) {
-      console.error("Snappify: Failed to show toast", e);
+      console.error("Snappify: Failed to show error toast", e);
     }
   }
 
@@ -332,6 +358,13 @@
         document.removeEventListener("keydown", handleKeydown, true);
         document.removeEventListener("blur", handleBlur, true);
         console.log("Snappify: Recording disabled!");
+        sendResponse({ success: true });
+      }
+
+      // Show error toast on web page
+      if (msg.type === "show-error-toast") {
+        console.log("Snappify: Showing error toast:", msg.message);
+        showErrorToast(msg.message);
         sendResponse({ success: true });
       }
 
