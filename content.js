@@ -47,9 +47,9 @@
       toast.id = "snappify-error-toast";
       toast.style.cssText = `
         position: fixed;
-        top: 50%;
+        top: 20px;
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translateX(-50%);
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         padding: 18px 24px;
@@ -122,11 +122,11 @@
         style.textContent = `
           @keyframes snappify-error-slide-in {
             0% {
-              transform: translate(-50%, -50%) scale(0.8);
+              transform: translateX(-50%) translateY(-100%);
               opacity: 0;
             }
             100% {
-              transform: translate(-50%, -50%) scale(1);
+              transform: translateX(-50%) translateY(0);
               opacity: 1;
             }
           }
@@ -134,7 +134,7 @@
           @keyframes snappify-error-fade-out {
             to {
               opacity: 0;
-              transform: translate(-50%, -50%) scale(0.9);
+              transform: translateX(-50%) translateY(-20px);
             }
           }
         `;
@@ -333,10 +333,11 @@
           showToast();
         }, 100);
 
-        // Show fun toast message with delay to ensure DOM is ready
-        setTimeout(() => {
-          showToast();
-        }, 100);
+        // Capture initial screenshot if this is a new recording
+        if (msg.captureInitial) {
+          console.log("🎬 Snappify: Capturing initial screenshot with URL...");
+          captureInitialScreenshot();
+        }
 
         // document.addEventListener("mouseover", handleMouseOver); // Disabled hover highlight as requested
         document.addEventListener("click", handleClick, true); // Capture phase
@@ -348,7 +349,13 @@
       if (msg.type === "disable-recording") {
         console.log("Snappify: Stopping recording...");
         snRecording = false;
-        if (hoverOverlay) hoverOverlay.style.display = "none";
+
+        // Completely remove overlay element
+        if (hoverOverlay && hoverOverlay.parentNode) {
+          hoverOverlay.parentNode.removeChild(hoverOverlay);
+          hoverOverlay = null;
+          console.log("Snappify: Overlay removed from DOM");
+        }
 
         // Stop modal observer and remove blur
         stopModalObserver();
@@ -377,6 +384,45 @@
       console.error("Snappify: Message handler error", e);
     }
   });
+
+  // Capture initial screenshot showing the URL when starting a NEW recording
+  function captureInitialScreenshot() {
+    try {
+      const url = location.href;
+      const description = `Navigate to "${url}"`;
+
+      console.log(`🎬 Snappify: Initial screenshot - ${description}`);
+
+      // Set up lastClickData without any click coordinates (no highlight)
+      lastClickData = {
+        rect: {
+          left: 0,
+          top: 0,
+          width: 0,
+          height: 0
+        },
+        clientX: 0,
+        clientY: 0,
+        url: url,
+        timestamp: Date.now(),
+        description: description
+      };
+
+      // Request screenshot with slight delay to ensure page is stable
+      setTimeout(() => {
+        try {
+          chrome.runtime.sendMessage({ type: "request-tab-screenshot" }).catch(() => {
+            console.error("Snappify: Failed to request initial screenshot");
+          });
+        } catch (e) {
+          console.error("Snappify: Error requesting initial screenshot", e);
+        }
+      }, 300); // Small delay to ensure page is fully loaded
+
+    } catch (e) {
+      console.error("Snappify: Failed to capture initial screenshot", e);
+    }
+  }
 
   function handleMouseOver(event) {
     // Disabled feature
@@ -806,69 +852,153 @@
       if (!el) return "Click element";
 
       const tag = el.tagName ? el.tagName.toLowerCase() : "";
+      const role = el.getAttribute("role");
+
+      console.log(`\n========== Snappify: Generating description for ${tag} ==========`);
+      console.log("Element:", el);
+      console.log("Element ID:", el.id || "(none)");
+      console.log("Element Name:", el.name || "(none)");
+      console.log("Element Type:", el.type || "(none)");
+      console.log("Element Role:", role || "(none)");
+      console.log("Element Value:", el.value || "(none)");
+      console.log("Element Text:", el.innerText?.substring(0, 50) || "(none)");
 
       // Smart text extraction - collect ALL possible text sources, then pick the best one
       let text = "";
-      const isFormField = (tag === "input" || tag === "select" || tag === "textarea");
 
-      // For form fields, ALWAYS prioritize the label first
+      // Enhanced form field detection - includes custom components
+      const isNativeFormField = (tag === "input" || tag === "select" || tag === "textarea");
+
+      // Detect custom form components by ARIA roles
+      const customFormRoles = ["combobox", "listbox", "textbox", "searchbox", "spinbutton"];
+      const isCustomFormComponent = customFormRoles.includes(role);
+
+      // Detect custom form components by class names (common patterns in modern frameworks)
+      // Safe extraction with multiple fallbacks to prevent errors
+      let className = '';
+      try {
+        if (el.className) {
+          if (typeof el.className === 'string') {
+            className = el.className.toLowerCase();
+          } else if (el.className.toString) {
+            className = el.className.toString().toLowerCase();
+          }
+        }
+      } catch (e) {
+        // Silently handle className extraction errors
+        className = '';
+      }
+
+      const formClassPatterns = [
+        'control-value',       // User's specific case
+        'like-disabled-input', // User's specific case
+        'form-control',        // Bootstrap
+        'form-input',          // Common pattern
+        'input-field',         // Common pattern
+        'select-field',        // Common pattern
+        'text-field',          // Material UI
+        'field-value',         // Common pattern
+        'input-like',          // Common pattern
+        'custom-select',       // Common pattern
+        'custom-input',        // Common pattern
+        'ant-select',          // Ant Design
+        'el-input',            // Element UI
+        'v-text-field'         // Vuetify
+      ];
+
+      let hasFormClass = false;
+      try {
+        hasFormClass = formClassPatterns.some(pattern => className.includes(pattern));
+      } catch (e) {
+        // Silently handle pattern matching errors
+        hasFormClass = false;
+      }
+
+      // Combined check
+      const isFormField = isNativeFormField || isCustomFormComponent || hasFormClass;
+
+      if (isCustomFormComponent) {
+        console.log(`🎯 Snappify: Detected CUSTOM form component with role="${role}"`);
+      }
+
+      if (hasFormClass) {
+        console.log(`🎯 Snappify: Detected CUSTOM form component by class: "${className}"`);
+      }
+
+      // For form fields (both native and custom), ALWAYS prioritize the label first
       if (isFormField) {
+        console.log("Snappify: Detected form field, searching for label...");
         const label = getLabelForElement(el);
         if (label && label.trim()) {
           text = label.trim();
-          console.log(`Snappify: Form field label found: "${text}"`);
+          console.log(`✅ Snappify: Form field label found: "${text}"`);
         } else {
-          console.log("Snappify: No label found for form field, checking other sources...");
+          console.log("Snappify: No label found, trying parent element...");
+
+          // For custom components, also check parent element for label
+          const parent = el.parentElement;
+          if (parent) {
+            const parentLabel = getLabelForElement(parent);
+            if (parentLabel && parentLabel.trim()) {
+              text = parentLabel.trim();
+              console.log(`✅ Snappify: Found label from parent element: "${text}"`);
+            }
+          }
         }
       }
 
-      // If we still don't have text, check other sources
+      // If we still don't have text, check other sources (but NEVER use innerText for form fields)
       if (!text) {
+        console.log("Snappify: No text from label, checking other sources...");
+
         // Check aria-label
         const ariaLabel = el.getAttribute("aria-label");
         if (ariaLabel && ariaLabel.trim()) {
           text = ariaLabel.trim();
-          console.log(`Snappify: Using aria-label: "${text}"`);
+          console.log(`✅ Snappify: Using aria-label: "${text}"`);
         }
-        // Check placeholder
+        // Check placeholder (good fallback for inputs)
         else if (el.getAttribute("placeholder")) {
           text = el.getAttribute("placeholder").trim();
-          console.log(`Snappify: Using placeholder: "${text}"`);
+          console.log(`✅ Snappify: Using placeholder: "${text}"`);
         }
         // Check title
         else if (el.getAttribute("title")) {
           text = el.getAttribute("title").trim();
-          console.log(`Snappify: Using title: "${text}"`);
+          console.log(`✅ Snappify: Using title: "${text}"`);
         }
         // Check alt for images
         else if (el.getAttribute("alt")) {
           text = el.getAttribute("alt").trim();
+          console.log(`✅ Snappify: Using alt: "${text}"`);
         }
-        // Check innerText (visible text)
-        else if (el.innerText && el.innerText.trim()) {
+        // For non-form elements, check innerText (visible text)
+        // CRITICAL: Skip innerText for form fields as it shows the VALUE, not the label
+        else if (!isFormField && el.innerText && el.innerText.trim()) {
           text = el.innerText.trim();
+          console.log(`✅ Snappify: Using innerText: "${text}"`);
         }
-        // Check textContent as fallback
-        else if (el.textContent && el.textContent.trim()) {
+        // Check textContent as fallback (also skip for form fields)
+        else if (!isFormField && el.textContent && el.textContent.trim()) {
           text = el.textContent.trim();
+          console.log(`✅ Snappify: Using textContent: "${text}"`);
+        } else if (isFormField) {
+          console.warn("⚠️ Snappify: Form field detected but NO label source found!");
         }
       }
 
       // Clean up text - remove extra spaces and line breaks
       text = text.replace(/\s+/g, ' ').trim();
 
-      // Fix for "Save" button showing as "a":
-      // If we got a single letter like "a" (common if capturing 'a' tag name or short attribute)
-      // but we have a longer innerText available, use that instead.
-      if (text.length <= 1 && el.innerText && el.innerText.trim().length > 1) {
-        text = el.innerText.trim();
-      }
+      // CRITICAL: Never use innerText as fallback for form fields
+
+
+
+
 
       // Get class names and check for icon patterns
-      // className can be a DOMTokenList or string, convert to string safely
-      const className = typeof el.className === 'string' ? el.className.toLowerCase() :
-        el.className ? el.className.toString().toLowerCase() : '';
-      const role = el.getAttribute("role");
+      // className was already defined earlier in the function, reuse it
+
 
       // 🎯 ICON DETECTION - Recognize common icons by class, text, or pattern
       function detectIconType(element, txt, classes) {
@@ -883,9 +1013,16 @@
           }
         }
 
-        // Check parent element too
+        // Check parent element too (safe className handling)
         const parent = element.parentElement;
-        const parentClass = parent ? (parent.className || "").toLowerCase() : "";
+        let parentClass = "";
+        if (parent && parent.className) {
+          if (typeof parent.className === 'string') {
+            parentClass = parent.className.toLowerCase();
+          } else if (parent.className.toString) {
+            parentClass = parent.className.toString().toLowerCase();
+          }
+        }
         const parentLabel = parent ? (parent.getAttribute("aria-label") || "") : "";
 
         // Helper for exact class match or specific icon patterns
@@ -1099,6 +1236,10 @@
           if (label && label.trim()) {
             text = label.trim();
           }
+          // Fall back to placeholder attribute
+          else if (el.placeholder && el.placeholder.trim()) {
+            text = el.placeholder.trim();
+          }
           // Fall back to name attribute
           else if (el.name && el.name.trim()) {
             // Convert name like "user_email" to "User Email"
@@ -1140,8 +1281,13 @@
           }
         }
 
-        // Return with the field identifier
-        return text && text.trim() ? `Click "${text}" field` : `Click ${type} field`;
+        // Always prioritize showing the label/field name
+        if (text && text.trim()) {
+          return `Click the "${text}" field`;
+        }
+
+        // Fallback when no label found at all - use generic description
+        return `Click ${type} field`;
       }
 
       // Select dropdown
@@ -1167,7 +1313,14 @@
               .join(' ');
           }
         }
-        return text && text.trim() ? `Select from "${text}"` : "Select dropdown";
+
+        // Always prioritize showing the label/field name
+        if (text && text.trim()) {
+          return `Select the "${text}" field`;
+        }
+
+        // Fallback when no label found
+        return "Select dropdown";
       }
 
       // Images
@@ -1182,6 +1335,9 @@
           const label = getLabelForElement(el);
           if (label && label.trim()) {
             text = label.trim();
+          }
+          else if (el.placeholder && el.placeholder.trim()) {
+            text = el.placeholder.trim();
           }
           else if (el.name && el.name.trim()) {
             text = el.name.replace(/[_-]/g, ' ')
@@ -1198,7 +1354,14 @@
               .join(' ');
           }
         }
-        return text && text.trim() ? `Click "${text}" field` : "Click text area";
+
+        // Always prioritize showing the label/field name
+        if (text && text.trim()) {
+          return `Click the "${text}" field`;
+        }
+
+        // Fallback when no label found
+        return "Click text area";
       }
 
       // Divs/spans with role (often used as buttons)

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Page for Replay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        button,
+        input {
+            margin: 10px 0;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        .section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Replay Test Page</h1>
+
+    <div class="section">
+        <h2>Simple Test</h2>
+        <button id="testBtn">Click Me</button>
+        <div id="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Form Test</h2>
+        <label for="name">Name:</label>
+        <input type="text" id="name" placeholder="Enter your name">
+        <br>
+        <button id="submitBtn">Submit</button>
+    </div>
+
+    <script>
+        document.getElementById('testBtn').addEventListener('click', () => {
+            document.getElementById('result').textContent = '✅ Button clicked at ' + new Date().toLocaleTimeString();
+            console.log('Test button clicked!');
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            alert(`Hello, ${name || 'stranger'}!`);
+        });
+    </script>
+</body>
+
+</html>

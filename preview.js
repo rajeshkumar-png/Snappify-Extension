@@ -30,6 +30,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Replay button - NEW FEATURE!
+  document.getElementById("replaySteps").addEventListener("click", () => {
+    if (steps.length === 0) {
+      alert("No steps to replay. Record some steps first!");
+      return;
+    }
+
+    // Confirm with user
+    if (!confirm(`🎬 Replay ${steps.length} steps automatically?\n\nThis will navigate to the starting URL and replay all interactions.`)) {
+      return;
+    }
+
+    // Send to background to start replay
+    chrome.runtime.sendMessage({
+      type: "start-replay",
+      steps: steps
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Replay start error:', chrome.runtime.lastError);
+        alert('Failed to start replay. Please try again.');
+      } else if (response && response.success) {
+        showSuccessNotification('🎬 Replay started! Watch the browser...');
+      }
+    });
+  });
+
   // PDF Export button
   document.getElementById("downloadPdf").addEventListener("click", exportToPDF);
 });

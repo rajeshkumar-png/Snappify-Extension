@@ -171,8 +171,17 @@ document.addEventListener("DOMContentLoaded", () => {
     chrome.runtime.sendMessage({ type: "start-capture" }, (response) => {
       if (chrome.runtime.lastError) {
         console.log('Error starting capture:', chrome.runtime.lastError.message);
+        showErrorToast("⚠️ Failed to start recording. Please try again.");
         return;
       }
+
+      // Check if recording failed to start
+      if (response && !response.success) {
+        console.log("Panel: Failed to start recording:", response.error);
+        showErrorToast(response.error || "⚠️ Failed to start recording. Please try again.");
+        return;
+      }
+
       console.log("Panel: Message sent to background");
     });
 
@@ -200,10 +209,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (tabs[0] && tabs[0].id) {
           chrome.tabs.sendMessage(tabs[0].id, {
             type: "show-error-toast",
-            message: "No Steps Recorded Yet!"
+            message: "⚠️ No screenshots captured! Please capture at least one step before stopping."
           }).catch(() => {
-            // If content script not available, show in panel as fallback
-            console.log('Could not show error on web page');
+            // If content script not available, log error
+            console.log('Could not show error toast on web page');
           });
         }
       });
@@ -284,8 +293,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Use provided stepNumber or current capturedSteps count
     meta.textContent = `Step ${stepNumber || capturedSteps}`;
 
-    screenshotItem.appendChild(img);
     screenshotItem.appendChild(description);
+    screenshotItem.appendChild(img);
     screenshotItem.appendChild(meta);
 
     screenshotsContainer.appendChild(screenshotItem);
